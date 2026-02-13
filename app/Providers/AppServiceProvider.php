@@ -23,11 +23,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            fn (): string => Blade::render("@vite(['resources/js/chat.js'])"),
+        );
+        FilamentView::registerRenderHook(
             PanelsRenderHook::SIDEBAR_START,
-            fn (): string => Blade::render(<<<'BLADE'
-                        <livewire:connect-event-sub/>
-                BLADE
-            ),
+            fn (): string => Blade::render('<livewire:connect-event-sub/>'),
         );
     }
 }

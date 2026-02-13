@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Amp\Websocket\WebsocketMessage;
 use App\Actions\GetTwitchRequestClient;
+use App\Events\NewChatMessage;
 use App\Events\SubscriptionSuccess;
 use App\Models\TwitchConnection;
 use Illuminate\Console\Command;
@@ -63,6 +64,15 @@ class RunEventSubClient extends Command
                         ->post('/eventsub/subscriptions', $data);
                     if ($response->successful()) {
                         SubscriptionSuccess::broadcast();
+                    }
+                } elseif ($parsed['metadata']['message_type'] === 'session_keepalive') {
+                    // Do nothing
+                    continue;
+                } elseif ($parsed['metadata']['message_type'] === 'notification') {
+                    if ($parsed['payload']['subscription']['type'] === 'channel.chat.message') {
+                        NewChatMessage::dispatch($parsed['payload']['event']);
+                    } else {
+                        $this->info('Notification received: '.$parsed['payload']['subscription']['type']);
                     }
                 } else {
                     $this->info('Message type: '.$parsed['metadata']['message_type']);
