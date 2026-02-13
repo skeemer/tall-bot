@@ -23,7 +23,7 @@ class TwitchAuthCallbackController extends Controller
         ]);
 
         $data = $results->json();
-        $tc = new TwitchConnection();
+        $tc = new TwitchConnection;
         $tc->fill($data);
         $tc->expires_at = now()->addSeconds($data['expires_in']);
         $tc->save();

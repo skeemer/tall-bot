@@ -27,7 +27,7 @@ class GetTwitchRequestClient
                     return false;
                 }
 
-                $http->replaceHeaders(['Authorization'=> 'Bearer '.$token]);
+                $http->replaceHeaders(['Authorization' => 'Bearer '.$token]);
 
                 return true;
             });

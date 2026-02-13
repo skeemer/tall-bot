@@ -4,11 +4,10 @@ namespace App\Console\Commands;
 
 use Amp\Websocket\WebsocketMessage;
 use App\Actions\GetTwitchRequestClient;
-use App\Actions\RefreshAccessToken;
+use App\Events\SubscriptionSuccess;
 use App\Models\TwitchConnection;
 use Illuminate\Console\Command;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
+
 use function Amp\Websocket\Client\connect;
 
 class RunEventSubClient extends Command
@@ -43,6 +42,10 @@ class RunEventSubClient extends Command
 
                 if ($parsed['metadata']['message_type'] === 'session_welcome') {
                     $this->info('Session welcome received');
+
+                    sleep(1); // To make it easier to cancel the connection
+
+                    // Setup subscriptions
                     $data = [
                         'type' => 'channel.chat.message',
                         'version' => '1',
@@ -56,9 +59,11 @@ class RunEventSubClient extends Command
                         ],
                         'session_id' => $parsed['payload']['session']['id'],
                     ];
-                    GetTwitchRequestClient::run($twitchConnection)
+                    $response = GetTwitchRequestClient::run($twitchConnection)
                         ->post('https://api.twitch.tv/helix/eventsub/subscriptions', $data);
-
+                    if ($response->successful()) {
+                        SubscriptionSuccess::broadcast();
+                    }
                 } else {
                     $this->info('Message type: '.$parsed['metadata']['message_type']);
                 }

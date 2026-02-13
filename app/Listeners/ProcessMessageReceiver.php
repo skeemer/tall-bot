@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use Native\Desktop\Events\ChildProcess\MessageReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class ProcessMessageReceiver
 {

@@ -13,8 +13,8 @@ class SetTwitchConnectionChannel
     public function handle(TwitchConnection $twitchConnection): void
     {
         $response = Http::withHeaders([
-            'Authorization'=> 'Bearer '.$twitchConnection->access_token,
-            'Client-Id'=> config('services.twitch.client_id'),
+            'Authorization' => 'Bearer '.$twitchConnection->access_token,
+            'Client-Id' => config('services.twitch.client_id'),
         ])->get('https://api.twitch.tv/helix/users');
 
         $twitchConnection->channel = $response->json('data.0.id');
