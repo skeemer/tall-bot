@@ -36,6 +36,8 @@ return [
     ],
 
     'twitch' => [
+        'http_url' => env('TWITCH_HTTP_URL', 'https://api.twitch.tv/helix'),
+        'websocket_url' => env('TWITCH_WEBSOCKET_URL', 'wss://eventsub.wss.twitch.tv/ws'),
         'client_id' => env('TWITCH_CLIENT_ID'),
         'client_secret' => env('TWITCH_CLIENT_SECRET'),
     ],

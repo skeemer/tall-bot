@@ -31,7 +31,7 @@ class RunEventSubClient extends Command
      */
     public function handle()
     {
-        $connection = connect('wss://eventsub.wss.twitch.tv/ws');
+        $connection = connect(config('services.twitch.websocket_url'));
 
         $twitchConnection = TwitchConnection::where('channel_id', '!=', null)->first();
 
@@ -60,7 +60,7 @@ class RunEventSubClient extends Command
                         'session_id' => $parsed['payload']['session']['id'],
                     ];
                     $response = GetTwitchRequestClient::run($twitchConnection)
-                        ->post('https://api.twitch.tv/helix/eventsub/subscriptions', $data);
+                        ->post('/eventsub/subscriptions', $data);
                     if ($response->successful()) {
                         SubscriptionSuccess::broadcast();
                     }

@@ -17,6 +17,7 @@ class GetTwitchRequestClient
             'Authorization' => 'Bearer '.$twitchConnection->access_token,
             'Client-Id' => config('services.twitch.client_id'),
         ])
+            ->baseUrl(config('services.twitch.http_url'))
             ->retry(2, when: function ($exception, PendingRequest $http) use ($twitchConnection) {
                 if ($exception->getCode() !== 401) {
                     return false;
