@@ -17,8 +17,16 @@ new class extends Component
         {{-- <article class="message">Fake Message 2</article> --}}
         {{-- <article class="message">Fake Message 3</article> --}}
         <template x-for="item in list" :key="item.message_id">
-            <article class="message">
-                <p x-text="item.message.text"></p>
+            <article x-data="chatMessage(item)" class="message" :style="{'--chatter-color': item.color}">
+                <header class="">
+                    <span class="timestamp" x-text="messageTime"></span>
+                    <span class="username" x-text="item.chatter_user_name"></span><span x-text="isMeCommand ? ' ' : ':'"></span>
+                </header>
+                <p :class="isMeCommand ? 'me-command' : ''">
+                    <template x-for="word in words">
+                        <span x-html="word.html"></span>
+                    </template>
+                </p>
             </article>
         </template>
     </section>
@@ -38,6 +46,32 @@ new class extends Component
         border-bottom: 1px solid #ccc;
         &:last-of-type {
             border-bottom: 0;
+        }
+        display: flex;
+        align-items: center;
+
+        header {
+            padding-right: .25em;
+        }
+
+        .emote {
+            display: inline;
+            height: 1.5rem;
+            vertical-align: text-bottom;
+        }
+
+        .me-command {
+            font-style: italic;
+            color: var(--chatter-color);
+        }
+
+        .timestamp {
+            font-family: monospace;
+        }
+
+        .username {
+            color: var(--chatter-color);
+            font-weight: bold;
         }
     }
 </style>

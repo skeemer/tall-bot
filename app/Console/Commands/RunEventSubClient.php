@@ -70,7 +70,9 @@ class RunEventSubClient extends Command
                     continue;
                 } elseif ($parsed['metadata']['message_type'] === 'notification') {
                     if ($parsed['payload']['subscription']['type'] === 'channel.chat.message') {
-                        NewChatMessage::dispatch($parsed['payload']['event']);
+                        $event = $parsed['payload']['event'];
+                        $event['created_at'] = now();
+                        NewChatMessage::dispatch($event);
                     } else {
                         $this->info('Notification received: '.$parsed['payload']['subscription']['type']);
                     }
