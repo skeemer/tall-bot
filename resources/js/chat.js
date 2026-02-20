@@ -5,7 +5,13 @@ document.addEventListener('alpine:init', async () => {
     async function initFetcher() {
         const secrets = await (await fetch('/twitch-secrets')).json()
 
-        const channelId = secrets.channelId;
+        const channelId = parseInt(secrets.channelId)
+        const channelFetches = {
+            'twitch': Promise.resolve(true),
+            0: Promise.resolve(true),
+            139075904: Promise.resolve(true),
+        }
+        channelFetches[channelId] = Promise.resolve(true)
 
         const fetcher = new EmoteFetcher(secrets.clientId, secrets.clientSecret)
         const parser = new EmoteParser(fetcher, {
@@ -37,7 +43,25 @@ document.addEventListener('alpine:init', async () => {
             fetcher.fetchFFZEmotes(channelId)
         ])
 
-        return Promise.resolve(parser)
+        return Promise.resolve({
+            checkChannels(channelIds) {
+                const newChannels = channelIds.reduce(function (carry, channelId) {
+                    channelId = channelId === 'twitch' ? 'twitch' : parseInt(channelId)
+                    if (channelFetches[channelId] === undefined) {
+                        channelFetches[channelId] = fetcher.fetchTwitchEmotes(channelId)
+                    }
+
+                    if (! carry.includes(channelId)) carry.push(channelId)
+
+                    return carry;
+                }, [])
+
+                return Promise.allSettled(newChannels.map(channelId => channelFetches[channelId]))
+            },
+            parse(text) {
+                return parser.parse(text)
+            }
+        })
     }
 
     Alpine.data('chatPanel', function () {
@@ -63,21 +87,30 @@ document.addEventListener('alpine:init', async () => {
             const date = new Date(datetime)
             return date.getHours() + ':' + date.getMinutes()
         }
+
+        const emoteChannelIds = twitchEvent.message.fragments
+            .filter(fragment => fragment.type === 'emote' && fragment.emote.owner_id)
+            .map(fragment => fragment.emote.owner_id)
+
         twitchEvent.message.fragments.forEach(fragment => fragment.html = fragment.text)
+
         return {
             messageTime: formatTime(twitchEvent.created_at ?? null),
             isMeCommand: twitchEvent.message.text.startsWith('\u0001ACTION'),
             words: twitchEvent.message.fragments,
-            init() {
-                if (this.parser) {
+            renderEmoticons() {
+                this.parser.checkChannels(emoteChannelIds).then((newArray) => {
                     this.words.forEach(word => {
                         word.html = this.parser.parse(word.text)
                     })
+                })
+            },
+            init() {
+                if (this.parser) {
+                    this.renderEmoticons()
                 } else {
                     this.$watch('parser', () => {
-                        this.words.forEach(word => {
-                            word.html = this.parser.parse(word.text)
-                        })
+                        this.renderEmoticons()
                     })
                 }
             },
