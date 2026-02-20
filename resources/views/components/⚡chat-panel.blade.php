@@ -12,7 +12,7 @@ new class extends Component
     <header class="flex justify-center items-center">
         <h1 class="text-2xl font-bold">Chat</h1>
     </header>
-    <section class="flex flex-col grow-1 justify-end border-y">
+    <section class="flex flex-col grow-1 justify-end border-y overflow-y-auto">
         {{-- <article class="message">Fake Message 1</article> --}}
         {{-- <article class="message">Fake Message 2</article> --}}
         {{-- <article class="message">Fake Message 3</article> --}}
@@ -81,5 +81,6 @@ new class extends Component
     .fi-page>.fi-page-header-main-ctn>.fi-page-main,
     .fi-page>.fi-page-header-main-ctn>.fi-page-main>.fi-page-content  {
         height: 100%;
+        max-height: calc(100vh - 4rem);
     }
 </style>
