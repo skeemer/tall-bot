@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\SetTwitchConnectionChannel;
+use App\Actions\FillTwitchConnectionInformation;
 use App\Models\TwitchConnection;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Native\Desktop\Facades\Window;
 
 class TwitchAuthCallbackController extends Controller
 {
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request): RedirectResponse|ResponseFactory|Response
     {
         // TODO Handle canceled auth request
 
@@ -28,7 +31,13 @@ class TwitchAuthCallbackController extends Controller
         $tc->expires_at = now()->addSeconds($data['expires_in']);
         $tc->save();
 
-        SetTwitchConnectionChannel::run($tc);
+        FillTwitchConnectionInformation::run($tc);
+
+        if (Window::get('oauth')) {
+            Window::close('oauth');
+
+            return response('');
+        }
 
         return response()->redirectToRoute('dashboard')->with('success', 'Successfully connected to Twitch!');
     }

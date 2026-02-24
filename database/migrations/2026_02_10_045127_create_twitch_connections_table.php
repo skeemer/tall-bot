@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('twitch_connections', function (Blueprint $table) {
             $table->id();
-            $table->string('channel')->nullable();
+            $table->string('display_name')->nullable();
+            $table->string('twitch_user_id')->nullable();
             $table->string('access_token');
             $table->string('refresh_token');
             $table->dateTime('expires_at');

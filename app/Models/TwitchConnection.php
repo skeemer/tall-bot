@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Settings\TwitchManagement;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class TwitchConnection extends Model
@@ -12,11 +14,21 @@ class TwitchConnection extends Model
         'scope',
     ];
 
-    protected function casts()
+    protected function casts(): array
     {
         return [
             'expires_at' => 'datetime',
             'scope' => 'array',
         ];
+    }
+
+    protected function isBotConnection(): Attribute
+    {
+        return Attribute::get(fn () => $this->id === app(TwitchManagement::class)->botConnection);
+    }
+
+    protected function isChatConnection(): Attribute
+    {
+        return Attribute::get(fn () => $this->id === app(TwitchManagement::class)->chatConnection);
     }
 }

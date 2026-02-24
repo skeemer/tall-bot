@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TwitchConnection;
+use App\Actions\TwitchConnections\GetBotConnection;
 use Illuminate\Http\Request;
 
 class TwitchSecretsController extends Controller
@@ -12,7 +12,7 @@ class TwitchSecretsController extends Controller
         return response()->json([
             'clientId' => config('services.twitch.client_id'),
             'clientSecret' => config('services.twitch.client_secret'),
-            'channelId' => TwitchConnection::first()->channel,
+            'channelId' => GetBotConnection::run()->twitch_user_id,
         ]);
     }
 }

@@ -1,8 +1,10 @@
 <?php
 
 use App\Console\Commands\RunEventSubClient;
+use App\Events\BotConnectionSettingChanged;
 use App\Events\SubscriptionSuccess;
 use App\Models\TwitchConnection;
+use App\Settings\TwitchManagement;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -13,6 +15,10 @@ use Livewire\Component;
 
 new class extends Component implements HasSchemas {
     use InteractsWithSchemas;
+
+    protected $listeners = [
+        'native:'.BotConnectionSettingChanged::class => '$refresh',
+    ];
 
     public ?TwitchConnection $connection = null;
 
@@ -26,7 +32,7 @@ new class extends Component implements HasSchemas {
 
     public function mount(): void
     {
-        $this->enabled = (bool)ChildProcess::get('eventsub');
+        $this->enabled = (bool) ChildProcess::get('eventsub');
     }
 
     public function form(Schema $schema): Schema
@@ -35,7 +41,8 @@ new class extends Component implements HasSchemas {
             ->components([
                 Components\Toggle::make('enabled')
                     ->label('Bot Online')
-                    ->onColor(fn() => $this->errorState ? 'danger' : (!$this->live ? 'warning' : 'success'))
+                    ->onColor(fn () => $this->errorState ? 'danger' : (!$this->live ? 'warning' : 'success'))
+                    ->disabled(fn () => app(TwitchManagement::class)->botConnection === null)
                     ->live(),
             ]);
     }
@@ -90,7 +97,7 @@ new class extends Component implements HasSchemas {
         }
     }
 
-    #[On('native:' . SubscriptionSuccess::class)]
+    #[On('native:'.SubscriptionSuccess::class)]
     public function subscriptionSuccess(): void
     {
         $this->errorState = false;

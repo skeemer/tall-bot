@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use Amp\Websocket\WebsocketMessage;
 use App\Actions\GetTwitchRequestClient;
+use App\Actions\TwitchConnections\GetBotConnection;
 use App\Events\NewChatMessage;
 use App\Events\SubscriptionSuccess;
-use App\Models\TwitchConnection;
 use Illuminate\Console\Command;
 
 use function Amp\Websocket\Client\connect;
@@ -30,11 +30,17 @@ class RunEventSubClient extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
-        $connection = connect(config('services.twitch.websocket_url'));
+        $twitchConnection = GetBotConnection::run();
 
-        $twitchConnection = TwitchConnection::where('channel_id', '!=', null)->first();
+        if (! $twitchConnection) {
+            $this->error('Bot connection not found');
+
+            return;
+        }
+
+        $connection = connect(config('services.twitch.websocket_url'));
 
         foreach ($connection as $message) {
             /** @var WebsocketMessage $message */
@@ -55,8 +61,8 @@ class RunEventSubClient extends Command
                             'session_id' => $parsed['payload']['session']['id'],
                         ],
                         'condition' => [
-                            'broadcaster_user_id' => $twitchConnection->channel,
-                            'user_id' => $twitchConnection->channel,
+                            'broadcaster_user_id' => $twitchConnection->twitch_user_id,
+                            'user_id' => $twitchConnection->twitch_user_id,
                         ],
                         'session_id' => $parsed['payload']['session']['id'],
                     ];
