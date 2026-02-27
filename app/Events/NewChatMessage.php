@@ -13,6 +13,11 @@ class NewChatMessage implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
+     * Create a new event instance.
+     */
+    public function __construct(public array $event) {}
+
+    /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
