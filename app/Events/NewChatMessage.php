@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Broadcasting\OverlayChannel;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -26,6 +27,7 @@ class NewChatMessage implements ShouldBroadcastNow
     {
         return [
             new Channel('nativephp'),
+            new Channel('overlay'),
         ];
     }
 }

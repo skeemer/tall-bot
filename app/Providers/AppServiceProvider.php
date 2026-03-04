@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
-            fn (): string => Blade::render("@vite(['resources/js/chat.js'])"),
+            fn (): string => Blade::render("@vite(['resources/js/client/chat.js'])"),
         );
         FilamentView::registerRenderHook(
             PanelsRenderHook::SIDEBAR_START,
